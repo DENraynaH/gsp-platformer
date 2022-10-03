@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
 {
     public float defaultGravity;
     public int jumpCount = 0;
+    public int allocatedJumps = 2;
+    public GameObject withinLadder;
 
     private void Start()
     {
@@ -32,6 +34,7 @@ public class PlayerController : MonoBehaviour
         rigidbody.gravityScale = defaultGravity;
         travelMode = TravelMode.DEFAULT;
         jumpCount = 0;
+        Utilities.SetPlayerPlatformCollision(true);
     }
 
     public void AssignTravelModeTriple(Rigidbody2D rigidbody)
@@ -48,6 +51,8 @@ public class PlayerController : MonoBehaviour
     {
         rigidbody.gravityScale = 0;
         travelMode = TravelMode.LADDER;
+        transform.position = new Vector3(withinLadder.transform.position.x, transform.position.y, transform.position.z);
+        Utilities.SetPlayerPlatformCollision(false);
     }
 
 

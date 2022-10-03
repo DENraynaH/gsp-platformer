@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    LadderController ladderController;
-    PlayerController playerController;
+    private LadderController ladderController;
+    private PlayerController playerController;
     private Rigidbody2D rigidBody;
     private BoxCollider2D boxCollider;
+    private SpriteRenderer spriteRenderer;
     public LayerMask groundLayers;
     public float movementSpeed = 10;
     public float jumpPower = 7;
-    public float allocatedJumps = 2;
 
     private enum MoveDirection { LEFT, RIGHT, UP, NONE }
-    private enum LadderDirection { UP, DOWN, LEFT, RIGHT, NONE }
+    private enum LadderDirection { UP, DOWN, NONE }
 
     private LadderDirection ladderDirection;
     private MoveDirection hMoveDirection;
@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        groundLayers = LayerMask.GetMask("Ground") + LayerMask.GetMask("Platform");
+        groundLayers = LayerMask.GetMask("Ground") + LayerMask.GetMask("Platform") + LayerMask.GetMask("FallingPlatform");
 
         playerController = GetComponent<PlayerController>();
         ladderController = GetComponent<LadderController>();
@@ -32,16 +32,17 @@ public class PlayerMovement : MonoBehaviour
         ladderDirection = LadderDirection.NONE;
         hMoveDirection = MoveDirection.NONE;
         vMoveDirection = MoveDirection.NONE;
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
     {
-        BottomlessPlatform();
         LadderDetection();
         if (playerController.travelMode == PlayerController.TravelMode.DEFAULT)
         {
             DVMI();
             DHMI();
+            BottomlessPlatform();
         }
         if (playerController.travelMode == PlayerController.TravelMode.LADDER)
         {
@@ -75,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             playerController.jumpCount++;
-            if (playerController.jumpCount < allocatedJumps)
+            if (playerController.jumpCount < playerController.allocatedJumps)
             {
                 vMoveDirection = MoveDirection.UP;
             }
@@ -84,16 +85,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void DHMI()
     {
-        if (Input.GetKey(KeyCode.D)) { hMoveDirection = MoveDirection.LEFT; }
-        else if (Input.GetKey(KeyCode.A)) { hMoveDirection = MoveDirection.RIGHT; }
+        if (Input.GetKey(KeyCode.D)) { 
+            hMoveDirection = MoveDirection.LEFT;
+            spriteRenderer.flipX = false;
+            Debug.Log(transform.localScale.x);
+        }
+        else if (Input.GetKey(KeyCode.A)) { 
+            hMoveDirection = MoveDirection.RIGHT;
+            spriteRenderer.flipX = true;
+        }
         else { hMoveDirection = MoveDirection.NONE; }
     } // Default Horizontal Movement Input
 
     private void LadderMovement()
     {
-        if (Input.GetKey(KeyCode.D)) { ladderDirection = LadderDirection.LEFT; }
-        else if (Input.GetKey(KeyCode.A)) { ladderDirection = LadderDirection.RIGHT; }
-        else if (Input.GetKey(KeyCode.W)) { ladderDirection = LadderDirection.UP; }
+        if (Input.GetKey(KeyCode.W)) { ladderDirection = LadderDirection.UP; }
         else if (Input.GetKey(KeyCode.S)) { ladderDirection = LadderDirection.DOWN; }
         else { ladderDirection = LadderDirection.NONE; }
     } 
@@ -145,12 +151,6 @@ public class PlayerMovement : MonoBehaviour
             case LadderDirection.DOWN:
                 rigidBody.velocity = new Vector2(rigidBody.velocity.x, -ladderController.vLadderSpeed);
                 break;
-            case LadderDirection.LEFT:
-                rigidBody.velocity = new Vector2(ladderController.hLadderSpeed, rigidBody.velocity.y);
-                break;
-            case LadderDirection.RIGHT:
-                rigidBody.velocity = new Vector2(-ladderController.hLadderSpeed, rigidBody.velocity.y);
-                break;
             case LadderDirection.NONE:
                 rigidBody.velocity = Vector2.zero;
                 break;
@@ -161,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (rigidBody.velocity.y < Mathf.Epsilon)
         {
-            Physics2D.IgnoreLayerCollision(7, 3, false);
+            Utilities.SetPlayerPlatformCollision(true);
         }
     }
 
