@@ -17,8 +17,7 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        collision.transform.SetParent(this.transform, false);
-        //collision.transform.parent = this.transform;
+        collision.transform.SetParent(this.transform, true);
     }
 
     private void OnCollisionExit2D(Collision2D collision)
