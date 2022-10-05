@@ -7,7 +7,7 @@ public class PlayerMovement : MonoBehaviour
     private LadderController ladderController;
     private PlayerController playerController;
     private Rigidbody2D rigidBody;
-    private BoxCollider2D boxCollider;
+    private CapsuleCollider2D boxCollider;
     private SpriteRenderer spriteRenderer;
     public LayerMask groundLayers;
     public float movementSpeed = 10;
@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         ladderController = GetComponent<LadderController>();
         rigidBody = GetComponent<Rigidbody2D>();
-        boxCollider = GetComponent<BoxCollider2D>();
+        boxCollider = GetComponent<CapsuleCollider2D>();
         ladderDirection = LadderDirection.NONE;
         hMoveDirection = MoveDirection.NONE;
         vMoveDirection = MoveDirection.NONE;
